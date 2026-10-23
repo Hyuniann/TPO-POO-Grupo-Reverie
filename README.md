@@ -1,4 +1,4 @@
-# FubtolStats - Trabajo Practico POO
+# FutbolStats - Trabajo Practico POO
 
 Repositorio de el desarrollo del TPO
 
