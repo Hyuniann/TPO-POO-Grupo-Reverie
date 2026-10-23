@@ -1,0 +1,11 @@
+RF1 (Torneos y Clubes): Administrar torneos, inscribir clubes con sus planteles (18 a 30 jugadores) y cuerpo técnico, y registrar el historial de contratos de jugadores.
+
+RF2 (Partidos y Fixture): Programar partidos asignando clubes (local y visitante), fecha/hora, estadio y terna arbitral, y gestionar sus estados (Programado, En juego, Finalizado, Suspendido).
+
+RF3 (Eventos en Vivo): Registrar eventos cronológicos durante un partido en juego: Gol (a favor, en contra, de penal), Remate (con zona), Tarjetas (amarilla/roja), Cambio (jugador sale/entra) y Falta.
+
+RF4 (Notificaciones Automáticas): Enviar notificaciones en tiempo real (goles, rojas, fin de partido) a suscriptores a través de los canales configurados (App móvil, correo, SMS).
+
+RF5 (Reportes y Estadísticas): Generar la Tabla de Posiciones (3 puntos victoria, 1 empate, 0 derrota), tabla de goleadores y valla menos vencida.
+
+RF6 (Proyecciones de Rendimiento): Calcular el xG (goles esperados) por remates/partido y la probabilidad de clasificación usando métodos intercambiables.
