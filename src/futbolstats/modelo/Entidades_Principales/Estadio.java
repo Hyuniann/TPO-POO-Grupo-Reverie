@@ -1,4 +1,4 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Entidades_Principales;
 
 public class Estadio {
     private String nombre;

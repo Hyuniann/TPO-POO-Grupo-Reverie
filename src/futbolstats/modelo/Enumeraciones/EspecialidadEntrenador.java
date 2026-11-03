@@ -1,4 +1,4 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Enumeraciones;
 
 public enum EspecialidadEntrenador {
     DIRECTOR_TECNICO,

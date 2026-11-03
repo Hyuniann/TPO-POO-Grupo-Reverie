@@ -1,4 +1,7 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Entidades_Principales;
+
+import futbolstats.modelo.Excepciones.ReglaNegocioException;
+import futbolstats.modelo.JerarquiaPersona.Jugador;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +21,6 @@ public class Plantel {
     }
 
     public List<Jugador> obtenerJugadores() {
-        return jugadores;
+        return this.jugadores;
     }
 }

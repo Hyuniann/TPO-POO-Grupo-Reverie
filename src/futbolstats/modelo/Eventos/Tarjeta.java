@@ -1,4 +1,7 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Eventos;
+
+import futbolstats.modelo.Enumeraciones.ColorTarjeta;
+import futbolstats.modelo.JerarquiaPersona.Jugador;
 
 public class Tarjeta extends Evento {
     private String motivo;

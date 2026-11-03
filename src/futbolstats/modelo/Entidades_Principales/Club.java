@@ -1,4 +1,8 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Entidades_Principales;
+
+import futbolstats.modelo.Excepciones.ReglaNegocioException;
+import futbolstats.modelo.JerarquiaPersona.Entrenador;
+import futbolstats.modelo.JerarquiaPersona.Jugador;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,10 +37,10 @@ public class Club {
     }
 
     public Plantel obtenerPlantel() {
-        return plantel;
+        return this.plantel;
     }
 
     public List<Entrenador> obtenerCuerpoTecnico() {
-        return cuerpoTecnico;
+        return this.cuerpoTecnico;
     }
 }

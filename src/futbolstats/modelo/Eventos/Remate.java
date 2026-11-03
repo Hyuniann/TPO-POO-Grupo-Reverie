@@ -1,4 +1,7 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Eventos;
+
+import futbolstats.modelo.Enumeraciones.ZonaRemate;
+import futbolstats.modelo.JerarquiaPersona.Jugador;
 
 public class Remate extends Evento {
     private ZonaRemate zonaRemate;

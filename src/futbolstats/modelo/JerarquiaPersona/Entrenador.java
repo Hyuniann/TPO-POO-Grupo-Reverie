@@ -1,4 +1,6 @@
-package futbolstats.modelo;
+package futbolstats.modelo.JerarquiaPersona;
+import futbolstats.modelo.Enumeraciones.EspecialidadEntrenador;
+
 import java.time.LocalDate;
 
 public class Entrenador extends Persona{

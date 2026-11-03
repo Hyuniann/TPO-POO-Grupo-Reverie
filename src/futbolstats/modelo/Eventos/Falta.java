@@ -1,4 +1,7 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Eventos;
+
+import futbolstats.modelo.Enumeraciones.TipoFalta;
+import futbolstats.modelo.JerarquiaPersona.Jugador;
 
 public class Falta extends Evento {
     private TipoFalta tipoFalta;
