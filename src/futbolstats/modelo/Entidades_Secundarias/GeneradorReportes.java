@@ -2,6 +2,7 @@ package futbolstats.modelo.Entidades_Secundarias;
 import futbolstats.modelo.Entidades_Principales.Club;
 import futbolstats.modelo.Entidades_Principales.Torneo;
 import futbolstats.modelo.JerarquiaPersona.Jugador;
+import futbolstats.modelo.Interfaces_con_Implementaciones.EstrategiaProyeccion;
 
 import java.util.ArrayList;
 import java.util.Comparator;
