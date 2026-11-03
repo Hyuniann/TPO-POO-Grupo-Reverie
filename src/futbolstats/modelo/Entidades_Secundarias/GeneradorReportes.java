@@ -21,7 +21,6 @@ public class GeneradorReportes {
             todosJugadores.addAll(club.obtenerPlantel().obtenerJugadores());
         }
 
-        // Requisito: Comparator
         todosJugadores.sort(new Comparator<Jugador>() {
             @Override
             public int compare(Jugador j1, Jugador j2) {
