@@ -1,4 +1,6 @@
-package futbolstats.modelo;
+package futbolstats.modelo.JerarquiaPersona;
+import futbolstats.modelo.Enumeraciones.CategoriaArbitro;
+
 import java.time.LocalDate;
 
 public class Arbitro extends Persona {

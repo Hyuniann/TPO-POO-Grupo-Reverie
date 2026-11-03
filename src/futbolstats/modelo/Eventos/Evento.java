@@ -1,4 +1,6 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Eventos;
+
+import futbolstats.modelo.JerarquiaPersona.Jugador;
 
 public abstract class Evento {
     private int minuto;

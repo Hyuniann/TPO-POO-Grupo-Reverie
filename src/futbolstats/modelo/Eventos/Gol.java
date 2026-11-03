@@ -1,4 +1,7 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Eventos;
+
+import futbolstats.modelo.Enumeraciones.TipoGol;
+import futbolstats.modelo.JerarquiaPersona.Jugador;
 
 public class Gol extends Evento {
     private TipoGol tipoGol;

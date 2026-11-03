@@ -1,4 +1,4 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Excepciones;
 
 public class ReglaNegocioException extends Exception{
     public ReglaNegocioException(String mensaje) {

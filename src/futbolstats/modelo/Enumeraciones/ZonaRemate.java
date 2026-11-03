@@ -1,4 +1,4 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Enumeraciones;
 
 public enum ZonaRemate {
     AREA_CHICA,

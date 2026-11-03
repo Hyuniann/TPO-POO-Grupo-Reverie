@@ -1,4 +1,7 @@
-package futbolstats.modelo;
+package futbolstats.modelo.Entidades_Principales;
+
+import futbolstats.modelo.Enumeraciones.CategoriaArbitro;
+import futbolstats.modelo.JerarquiaPersona.Arbitro;
 
 public class TernaArbitral {
     private Arbitro principal;
