@@ -55,5 +55,25 @@ public class Partido {
     }
 
     public void finalizar() { this.estado = EstadoPartido.FINALIZADO; }
+
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public LocalTime getHora() {
+        return hora;
+    }
+
+    public int getGolesLocal() {
+        return golesLocal;
+    }
+
+    public int getGolesVisitante() {
+        return golesVisitante;
+    }
+
+    public List<Evento> getEventos() {
+        return eventos;
+    }
 }
 
