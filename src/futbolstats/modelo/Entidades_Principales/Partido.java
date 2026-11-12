@@ -75,5 +75,9 @@ public class Partido {
     public List<Evento> getEventos() {
         return eventos;
     }
+
+    public EstadoPartido getEstado() {
+        return estado;
+    }
 }
 
