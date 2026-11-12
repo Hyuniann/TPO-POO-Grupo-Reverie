@@ -1,7 +1,7 @@
 package futbolstats.vista;
 
-import futbolstats.controlador.*;
-import futbolstats.modelo.*;
+import futbolstats.controlador.ControladorSistemaFutbol;
+import futbolstats.controlador.GestorNotificaciones;
 import futbolstats.modelo.Entidades_Principales.Club;
 import futbolstats.modelo.Entidades_Principales.Partido;
 import futbolstats.modelo.Entidades_Principales.Torneo;

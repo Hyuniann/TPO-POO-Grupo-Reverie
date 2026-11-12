@@ -1,6 +1,5 @@
 package futbolstats;
 
-import futbolstats.modelo.*;
 import futbolstats.modelo.Entidades_Principales.Club;
 import futbolstats.modelo.Entidades_Principales.Partido;
 import futbolstats.modelo.Enumeraciones.TipoGol;
@@ -17,7 +16,7 @@ public class PartidoTest {
 
         Club local = new Club("UADE FC", LocalDate.of(2000, 1, 1), "Lima 750");
         Club visitante = new Club("Ingenieria FC", LocalDate.of(2005, 5, 10), "Independencia 120");
-        Partido partido = new Partido(LocalDate.now(), LocalTime.of(21, 00), local, visitante);
+        Partido partido = new Partido(LocalDate.now(), LocalTime.of(21, 0), local, visitante);
 
         Jugador jugador = new Jugador("12345678", "Lionel", "Messi", LocalDate.of(1987, 6, 24), "DELANTERO", 10, 0.0);
         Gol gol = new Gol(15, "Gol de Messi", jugador, TipoGol.A_FAVOR);

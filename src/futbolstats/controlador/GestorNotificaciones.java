@@ -1,5 +1,4 @@
 package futbolstats.controlador;
-import futbolstats.modelo.*;
 import futbolstats.modelo.Entidades_Secundarias.Notificacion;
 import futbolstats.modelo.Entidades_Secundarias.Suscriptor;
 import futbolstats.modelo.Interfaces_con_Implementaciones.CanalNotificacion;
