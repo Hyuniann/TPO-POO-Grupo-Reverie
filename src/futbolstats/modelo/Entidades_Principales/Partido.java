@@ -3,6 +3,7 @@ import futbolstats.modelo.Eventos.Evento;
 import futbolstats.modelo.Eventos.Gol;
 import futbolstats.modelo.Excepciones.ReglaNegocioException;
 import futbolstats.modelo.Enumeraciones.EstadoPartido;
+import futbolstats.modelo.JerarquiaPersona.Jugador;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -43,14 +44,24 @@ public class Partido {
         if (this.estado != EstadoPartido.EN_JUEGO) {
             throw new ReglaNegocioException("Solo se pueden registrar eventos si el partido está en juego.");
         }
+
+        Jugador jugador = evento.getJugadorInvolucrado();
+        boolean esLocal = clubLocal.obtenerPlantel().obtenerJugadores().contains(jugador);
+        boolean esVisitante = clubVisitante.obtenerPlantel().obtenerJugadores().contains(jugador);
+
+        if (!esLocal && !esVisitante) {
+            throw new ReglaNegocioException("El jugador no forma parte de la nómina de ninguno de los clubes del partido.");
+        }
+
         eventos.add(evento);
+
         if (evento instanceof Gol) {
-            if (clubLocal.obtenerPlantel().obtenerJugadores().contains(evento.getJugadorInvolucrado())) {
+            if (esLocal) {
                 golesLocal++;
             } else {
                 golesVisitante++;
             }
-            evento.getJugadorInvolucrado().incrementarGoles();
+            jugador.incrementarGoles();
         }
     }
 
