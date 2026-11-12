@@ -24,13 +24,14 @@ public class Main {
         GestorNotificaciones gestorNotif = new GestorNotificaciones();
         ControladorSistemaFutbol controlador = new ControladorSistemaFutbol();
 
-        Suscriptor suscriptor = new Suscriptor("Eric");
-        suscriptor.activarCanal(new SMS());
-        gestorNotif.agregarSuscriptor(suscriptor);
-
         Torneo torneo = new Torneo("Liga 2026", LocalDate.now(), LocalDate.now().plusMonths(4));
         Club local = new Club("UADE FC", LocalDate.of(2000, 1, 1), "Lima 750");
         Club visitante = new Club("Ingenieria FC", LocalDate.of(2005, 5, 10), "Independencia 120");
+
+        Suscriptor suscriptor = new Suscriptor("Eric");
+        suscriptor.activarCanal(new SMS());
+        suscriptor.agregarClub(local);
+        gestorNotif.agregarSuscriptor(suscriptor);
 
         Jugador jugador = new Jugador("12345678", "Lionel", "Messi", LocalDate.of(1987, 6, 24), "DELANTERO", 10, 0.0);
 
@@ -82,7 +83,8 @@ public class Main {
                         System.out.println("Gol registrado con exito.");
 
                         Notificacion alerta = new Notificacion(gol.getMinuto(), gol.getDescripcion());
-                        gestorNotif.despacharNotificacion(alerta);
+                        gestorNotif.despacharNotificacion(alerta, partido.getClubLocal(), partido.getClubVisitante());
+
 
                     } catch (ReglaNegocioException e) {
                         System.out.println("Regla de negocio no cumplida: " + e.getMessage());
