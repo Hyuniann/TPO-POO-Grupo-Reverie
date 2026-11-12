@@ -25,14 +25,16 @@ public class Sponsor {
         return logo;
     }
 
-    // Métodos exactos del diagrama
+
     public void patrocinarClub(Club club) {
         if (club != null) {
+            System.out.println("El sponsor " + this.marca + " ahora patrocina al club " + club.getNombre());
         }
     }
 
     public void patrocinarTorneo(Torneo torneo) {
         if (torneo != null) {
+            System.out.println("El sponsor " + this.marca + " ahora patrocina el torneo " + torneo.getNombre());
         }
     }
 }
