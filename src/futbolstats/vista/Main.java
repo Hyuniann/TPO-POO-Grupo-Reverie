@@ -3,6 +3,7 @@ package futbolstats.vista;
 import futbolstats.controlador.ControladorSistemaFutbol;
 import futbolstats.controlador.GestorNotificaciones;
 import futbolstats.modelo.Entidades_Principales.Club;
+import futbolstats.modelo.Entidades_Principales.Estadio;
 import futbolstats.modelo.Entidades_Principales.Partido;
 import futbolstats.modelo.Entidades_Principales.Torneo;
 import futbolstats.modelo.Entidades_Secundarias.GeneradorReportes;
@@ -30,32 +31,51 @@ public class Main {
         GeneradorReportes reportes = new GeneradorReportes();
 
         Torneo torneo = new Torneo("Liga 2026", LocalDate.now(), LocalDate.now().plusMonths(4));
-        Club local = new Club("UADE FC", LocalDate.of(2000, 1, 1), "Lima 750");
-        Club visitante = new Club("Ingenieria FC", LocalDate.of(2005, 5, 10), "Independencia 120");
+        Club c1 = new Club("UADE FC", LocalDate.of(2000, 1, 1), "Lima 750");
+        Club c2 = new Club("Ingenieria FC", LocalDate.of(2005, 5, 10), "Independencia 120");
+        Club c3 = new Club("Buongiorno Tutti", LocalDate.of(1998, 7, 3), "Italia 67");
+        Club c4 = new Club("Procyknator", LocalDate.of(2020, 4, 23), "RealTime");
+
+        Estadio e1 = new Estadio("TTT United", 77700,"Tung Valley", "777", "Sahur City", "BSAS", "Soleado");
+        Estadio e2 = new Estadio("Eric Song", 45000, "Micasa", "378", "Halliday", "BSAS", "Nublado");
 
         Suscriptor suscriptor = new Suscriptor("Eric");
         suscriptor.activarCanal(new SMS());
-        suscriptor.agregarClub(local);
+        suscriptor.agregarClub(c1);
         gestorNotif.agregarSuscriptor(suscriptor);
 
-        // Precarga de multiples jugadores para dinamismo
-        Jugador j1 = new Jugador("111", "Lionel", "Messi", LocalDate.of(1987, 6, 24), "DELANTERO", 10, 0.0);
-        Jugador j2 = new Jugador("222", "Rodrigo", "De Paul", LocalDate.of(1994, 5, 24), "MEDIO", 7, 0.0);
-        Jugador j3 = new Jugador("333", "Cristiano", "Ronaldo", LocalDate.of(1985, 2, 5), "DELANTERO", 7, 0.0);
-        Jugador j4 = new Jugador("444", "Luka", "Modric", LocalDate.of(1985, 9, 9), "MEDIO", 10, 0.0);
+        Jugador j1 = new Jugador("111", "Lionel", "Messi", LocalDate.of(1987, 6, 24), "DELANTERO", 10, 15.0);
+        Jugador j2 = new Jugador("222", "Rodrigo", "De Paul", LocalDate.of(1994, 5, 24), "MEDIO", 7, 20.0);
+        Jugador j3 = new Jugador("333", "Cristiano", "Ronaldo", LocalDate.of(1985, 2, 5), "DELANTERO", 7, 2.0);
+        Jugador j4 = new Jugador("444", "Luka", "Modric", LocalDate.of(1985, 9, 9), "MEDIO", 10, 10.0);
+        Jugador j5 = new Jugador("555", "Mateo", "González", LocalDate.of(1998, 3, 15), "DEFENSOR", 4, 12.5);
+        Jugador j6 = new Jugador("667", "Agustin", "Fernández", LocalDate.of(2001, 7, 22), "DELANTERO", 9, 25.0);
+        Jugador j7 = new Jugador("777", "Thiago", "Romero", LocalDate.of(2003, 11, 5), "ARQUERO", 68, 8.3);
+        Jugador j8 = new Jugador("888", "Santiago", "Méndez", LocalDate.of(1995, 1, 30), "AQUERO", 1, 5.0);
+        Jugador j9 = new Jugador("999", "Franco", "Díaz", LocalDate.of(2000, 9, 12), "DELANTERO", 3, 15.7);
+        Jugador j10 = new Jugador("4343", "Nicolás", "Paredes", LocalDate.of(2004, 5, 18), "MEDIO", 11, 3.2);
+        Jugador j11 = new Jugador("8945", "Joaquín", "Sosa", LocalDate.of(1997, 12, 8), "MEDIO", 10, 18.0);
+        Jugador j12 = new Jugador("4321", "Emiliano", "Vidal", LocalDate.of(2002, 4, 27), "DEFENSOR", 5, 7.5);
 
         try {
-            local.agregarJugador(j1);
-            local.agregarJugador(j2);
-            visitante.agregarJugador(j3);
-            visitante.agregarJugador(j4);
-            torneo.agregarClub(local);
-            torneo.agregarClub(visitante);
+            c1.agregarJugador(j1);
+            c1.agregarJugador(j2);
+            c2.agregarJugador(j3);
+            c2.agregarJugador(j4);
+            c3.agregarJugador(j5);
+            c3.agregarJugador(j6);
+            c4.agregarJugador(j7);
+            c4.agregarJugador(j8);
+            torneo.agregarClub(c1);
+            torneo.agregarClub(c2);
+            torneo.agregarClub(c3);
+            torneo.agregarClub(c4);
+
         } catch (ReglaNegocioException e) {
             System.out.println("Error de datos: " + e.getMessage());
         }
 
-        Partido partido = new Partido(LocalDate.now(), LocalTime.of(21, 0), local, visitante);
+        Partido partido = new Partido(LocalDate.now(), LocalTime.of(21, 0), c1, c2);
         controlador.programarPartido(torneo, partido);
 
         Scanner scanner = new Scanner(System.in);
@@ -128,7 +148,7 @@ public class Main {
 
                 case 4:
                     System.out.println("\n--- ESTADO DEL PARTIDO ---");
-                    System.out.println(local.getNombre() + " " + partido.getGolesLocal() + " - " + partido.getGolesVisitante() + " " + visitante.getNombre());
+                    System.out.println(c1.getNombre() + " " + partido.getGolesLocal() + " - " + partido.getGolesVisitante() + " " + c2.getNombre());
                     System.out.println("Estado: " + partido.getEstado());
 
                     reportes.obtenerTablaPosiciones(torneo);
