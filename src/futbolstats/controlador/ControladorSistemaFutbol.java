@@ -1,6 +1,5 @@
 package futbolstats.controlador;
 
-import futbolstats.modelo.*;
 import futbolstats.modelo.Entidades_Principales.Partido;
 import futbolstats.modelo.Entidades_Principales.Torneo;
 import futbolstats.modelo.Eventos.Evento;
