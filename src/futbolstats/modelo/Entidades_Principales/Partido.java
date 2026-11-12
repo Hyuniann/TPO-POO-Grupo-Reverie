@@ -45,6 +45,7 @@ public class Partido {
             throw new ReglaNegocioException("Solo se pueden registrar eventos si el partido está en juego.");
         }
 
+
         Jugador jugador = evento.getJugadorInvolucrado();
         boolean esLocal = clubLocal.obtenerPlantel().obtenerJugadores().contains(jugador);
         boolean esVisitante = clubVisitante.obtenerPlantel().obtenerJugadores().contains(jugador);

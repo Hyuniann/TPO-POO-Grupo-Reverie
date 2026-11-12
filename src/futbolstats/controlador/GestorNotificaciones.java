@@ -20,6 +20,7 @@ public class GestorNotificaciones {
         }
     }
 
+
     public void despacharNotificacion(Notificacion notificacion, Club clubLocal, Club clubVisitante) {
         if (notificacion == null) return;
 

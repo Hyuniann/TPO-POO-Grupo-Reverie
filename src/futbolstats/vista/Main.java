@@ -85,6 +85,7 @@ public class Main {
                         Notificacion alerta = new Notificacion(gol.getMinuto(), gol.getDescripcion());
                         gestorNotif.despacharNotificacion(alerta, partido.getClubLocal(), partido.getClubVisitante());
 
+
                     } catch (ReglaNegocioException e) {
                         System.out.println("Regla de negocio no cumplida: " + e.getMessage());
                     }
