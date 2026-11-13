@@ -91,5 +91,9 @@ public class Partido {
     public EstadoPartido getEstado() {
         return estado;
     }
+
+    public Estadio getEstadio() {
+        return estadio;
+    }
 }
 
