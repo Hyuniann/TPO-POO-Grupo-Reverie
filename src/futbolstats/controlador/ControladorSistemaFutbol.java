@@ -1,9 +1,12 @@
 package futbolstats.controlador;
 
+import futbolstats.modelo.Entidades_Principales.Club;
 import futbolstats.modelo.Entidades_Principales.Partido;
 import futbolstats.modelo.Entidades_Principales.Torneo;
+import futbolstats.modelo.Enumeraciones.EstadoPartido;
 import futbolstats.modelo.Eventos.Evento;
 import futbolstats.modelo.Excepciones.ReglaNegocioException;
+import futbolstats.modelo.JerarquiaPersona.Jugador;
 
 import java.io.FileWriter;
 import java.io.BufferedReader;
@@ -28,25 +31,65 @@ public class ControladorSistemaFutbol {
         }
     }
 
-    public void guardarResumenEnArchivo(Partido partido, String rutaArchivo) {
+    public void guardarResumenEnArchivo(Torneo torneo, String rutaArchivo) {
         FileWriter fw = null;
         try {
             fw = new FileWriter(rutaArchivo);
-            fw.write("================================================\n");
-            fw.write("ENCUENTRO: " + partido.getClubLocal().getNombre() + " vs " + partido.getClubVisitante().getNombre() + "\n");
-            fw.write("JUGADO EL: " + partido.getFecha() + " A LAS " + partido.getHora() + "\n");
-            fw.write("MARCADOR FINAL: " + partido.getGolesLocal() + " - " + partido.getGolesVisitante() + "\n");
-            fw.write("================================================\n");
-            fw.write("DETALLE DE INCIDENCIAS:\n\n");
+            fw.write("========== REPORTE GLOBAL: " + torneo.getNombre() + " ==========\n\n");
 
-            if (partido.getEventos().isEmpty()) {
-                fw.write("  > No hubo eventos registrados en este encuentro.\n");
+            // TABLA 1: TORNEO (POSICIONES)
+            fw.write("--- 1. TABLA DE POSICIONES ---\n");
+            for (Club c : torneo.getClubesInscriptos()) {
+                int puntos = 0;
+                for (Partido p : torneo.getPartidos()) {
+                    if (p.getEstado() == EstadoPartido.FINALIZADO) {
+                        if (p.getClubLocal().equals(c)) {
+                            if (p.getGolesLocal() > p.getGolesVisitante()) puntos += 3;
+                            else if (p.getGolesLocal() == p.getGolesVisitante()) puntos += 1;
+                        } else if (p.getClubVisitante().equals(c)) {
+                            if (p.getGolesVisitante() > p.getGolesLocal()) puntos += 3;
+                            else if (p.getGolesVisitante() == p.getGolesLocal()) puntos += 1;
+                        }
+                    }
+                }
+                fw.write(c.getNombre() + " - Puntos: " + puntos + "\n");
+            }
+
+            // TABLA 2: PARTIDOS Y EVENTOS
+            fw.write("\n--- 2. HISTORIAL DE PARTIDOS ---\n");
+            if (torneo.getPartidos().isEmpty()) {
+                fw.write("No hay partidos registrados.\n");
             } else {
-                for (Evento e : partido.getEventos()) {
-                    fw.write("  [" + e.getMinuto() + "'] " + e.getDescripcion() + "\n");
+                for (Partido p : torneo.getPartidos()) {
+                    fw.write("\nPartido: " + p.getClubLocal().getNombre() + " " + p.getGolesLocal() +
+                            " - " + p.getGolesVisitante() + " " + p.getClubVisitante().getNombre() + "\n");
+
+                    fw.write("Fecha: " + p.getFecha() + " | Hora: " + p.getHora());
+                    if (p.getEstadio() != null) {
+                        fw.write(" | Estadio: " + p.getEstadio().getNombre() + "\n");
+                    } else {
+                        fw.write("\n");
+                    }
+
+                    fw.write("Incidencias:\n");
+                    if (p.getEventos().isEmpty()) fw.write("  Sin incidencias.\n");
+                    for (Evento e : p.getEventos()) {
+                        fw.write("  [" + e.getMinuto() + "'] " + e.getDescripcion() + "\n");
+                    }
                 }
             }
-            fw.write("\n================================================\n");
+
+            // TABLA 3: ESTADISTICAS DE JUGADORES
+            fw.write("\n--- 3. JUGADORES Y ESTADISTICAS ---\n");
+            for (Club c : torneo.getClubesInscriptos()) {
+                fw.write("\nPlantel de " + c.getNombre() + ":\n");
+                for (Jugador j : c.obtenerPlantel().obtenerJugadores()) {
+                    fw.write("  - " + j.getDatosPersonales() + " | Goles: " + j.getGolesAcumulados() +
+                            " | Tarjetas: " + j.getTarjetasAcumuladas() + "\n");
+                }
+            }
+            fw.write("\n========================================================\n");
+
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar archivo: " + e.getMessage());
         } finally {
