@@ -1,6 +1,8 @@
 package futbolstats.modelo.Entidades_Principales;
+import futbolstats.modelo.Enumeraciones.ColorTarjeta;
 import futbolstats.modelo.Eventos.Evento;
 import futbolstats.modelo.Eventos.Gol;
+import futbolstats.modelo.Eventos.Tarjeta;
 import futbolstats.modelo.Excepciones.ReglaNegocioException;
 import futbolstats.modelo.Enumeraciones.EstadoPartido;
 import futbolstats.modelo.JerarquiaPersona.Jugador;
@@ -42,21 +44,40 @@ public class Partido {
 
     public void registrarEvento(Evento evento) throws ReglaNegocioException {
         if (this.estado != EstadoPartido.EN_JUEGO) {
-            throw new ReglaNegocioException("Solo se pueden registrar eventos si el partido está en juego.");
+            throw new ReglaNegocioException("Solo se pueden registrar eventos si el partido esta en juego.");
         }
-
 
         Jugador jugador = evento.getJugadorInvolucrado();
         boolean esLocal = clubLocal.obtenerPlantel().obtenerJugadores().contains(jugador);
         boolean esVisitante = clubVisitante.obtenerPlantel().obtenerJugadores().contains(jugador);
 
         if (!esLocal && !esVisitante) {
-            throw new ReglaNegocioException("El jugador no forma parte de la nómina de ninguno de los clubes del partido.");
+            throw new ReglaNegocioException("El jugador no forma parte de la nomina de ninguno de los clubes del partido.");
         }
 
-        eventos.add(evento);
+        int amarillasPrevias = 0;
+        boolean tieneRojaPrevia = false;
 
-        if (evento instanceof Gol) {
+        for (Evento e : eventos) {
+            if (e.getJugadorInvolucrado().equals(jugador) && e instanceof Tarjeta) {
+                Tarjeta t = (Tarjeta) e;
+                if (t.getColor() == ColorTarjeta.AMARILLA) amarillasPrevias++;
+                else if (t.getColor() == ColorTarjeta.ROJA) tieneRojaPrevia = true;
+            }
+        }
+
+        if (tieneRojaPrevia || amarillasPrevias >= 2) {
+            throw new ReglaNegocioException("El jugador " + jugador.getApellido() + " esta expulsado y no puede participar mas en este partido.");
+        }
+
+        if (evento instanceof Tarjeta) {
+            Tarjeta t = (Tarjeta) evento;
+            if (t.getColor() == ColorTarjeta.ROJA) {
+                jugador.expulsar(); // Suma 1 (la Roja)
+            } else if (t.getColor() == ColorTarjeta.AMARILLA) {
+                jugador.incrementarTarjetasAmarillas(); // Suma 1 (la Amarilla)
+            }
+        } else if (evento instanceof Gol) {
             if (esLocal) {
                 golesLocal++;
             } else {
@@ -64,6 +85,8 @@ public class Partido {
             }
             jugador.incrementarGoles();
         }
+
+        eventos.add(evento);
     }
 
     public void finalizar() { this.estado = EstadoPartido.FINALIZADO; }

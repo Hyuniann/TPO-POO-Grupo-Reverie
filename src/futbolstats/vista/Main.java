@@ -89,16 +89,16 @@ public class Main {
                         System.out.println("\n--- NUEVO PARTIDO ---");
                         System.out.println("Clubes: 1.UADE FC | 2.Ingenieria FC | 3.Buongiorno Tutti | 4.Procyknator");
                         System.out.print("Numero Club Local: ");
-                        int numeroLocal = scanner.nextInt();
+                        int numLocal = scanner.nextInt();
                         System.out.print("Numero Club Visitante: ");
-                        int numeroVisita = scanner.nextInt();
+                        int numVisita = scanner.nextInt();
 
-                        if (numeroLocal >= 1 && numeroLocal <= 4 && numeroVisita >= 1 && numeroVisita <= 4 && numeroLocal != numeroVisita) {
-                            Club local = torneo.getClubesInscriptos().get(numeroLocal - 1);
-                            Club visita = torneo.getClubesInscriptos().get(numeroVisita - 1);
+                        if (numLocal >= 1 && numLocal <= 4 && numVisita >= 1 && numVisita <= 4 && numLocal != numVisita) {
+                            Club local = torneo.getClubesInscriptos().get(numLocal - 1);
+                            Club visita = torneo.getClubesInscriptos().get(numVisita - 1);
 
                             Partido partidoActivo = new Partido(LocalDate.now(), LocalTime.now(), local, visita);
-                            partidoActivo.asignarEstadio((numeroLocal % 2 == 1) ? e1 : e2);
+                            partidoActivo.asignarEstadio((numLocal % 2 == 1) ? e1 : e2);
                             controlador.programarPartido(torneo, partidoActivo);
                             partidoActivo.asignarEstado(EstadoPartido.EN_JUEGO);
 
@@ -123,13 +123,14 @@ public class Main {
                                         System.out.println((i + 1) + ". " + enCancha.get(i).getApellido());
                                     }
                                     System.out.print("Numero de jugador involucrado: ");
-                                    int numeroJugador = scanner.nextInt();
-                                    if (numeroJugador < 1 || numeroJugador > enCancha.size()) {
+                                    int numJug = scanner.nextInt();
+                                    if (numJug < 1 || numJug > enCancha.size()) {
                                         System.out.println("Jugador invalido.");
                                         continue;
                                     }
-                                    Jugador jugadorSeleccion = enCancha.get(numeroJugador - 1);
+                                    Jugador jugSelec = enCancha.get(numJug - 1);
 
+                                    // VALIDACIÓN DEL MINUTO (0 a 120)
                                     int minuto = -1;
                                     while (minuto < 0 || minuto > 120) {
                                         System.out.print("Minuto del evento (0 a 120): ");
@@ -144,9 +145,25 @@ public class Main {
                                         }
                                     }
 
-                                    Evento evento = (accion == 1)
-                                            ? new Gol(minuto, "Gol", jugadorSeleccion, TipoGol.A_FAVOR)
-                                            : new Tarjeta(minuto, "Falta", jugadorSeleccion, "Infraccion", ColorTarjeta.AMARILLA);
+                                    // CREACIÓN DEL EVENTO
+                                    Evento evento = null;
+                                    if (accion == 1) {
+                                        evento = new Gol(minuto, "Gol", jugSelec, TipoGol.A_FAVOR);
+                                    } else if (accion == 2) {
+                                        int tipoTarjeta = 0;
+                                        while (tipoTarjeta != 1 && tipoTarjeta != 2) {
+                                            System.out.print("Color de Tarjeta (1.Amarilla | 2.Roja): ");
+                                            if (scanner.hasNextInt()) {
+                                                tipoTarjeta = scanner.nextInt();
+                                            } else {
+                                                System.out.println("Opcion invalida.");
+                                                scanner.next();
+                                            }
+                                        }
+                                        ColorTarjeta color = (tipoTarjeta == 1) ? ColorTarjeta.AMARILLA : ColorTarjeta.ROJA;
+                                        String motivo = (tipoTarjeta == 1) ? "Falta tactica" : "Juego brusco";
+                                        evento = new Tarjeta(minuto, "Infraccion", jugSelec, motivo, color);
+                                    }
 
                                     try {
                                         controlador.registrarEvento(partidoActivo, evento);
