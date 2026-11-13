@@ -25,7 +25,7 @@ public class Jugador extends Persona {
 
     public void incrementarTarjetasAmarillas() { this.tarjetasAcumuladas++; }
     public void incrementarGoles() { this.golesAcumulados++; }
-    public void expulsar() { this.tarjetasAcumuladas += 2; }
+    public void expulsar() { this.tarjetasAcumuladas ++; }
 
     public void obtenerEstadisticas() {
         System.out.println(getDatosPersonales() + " | Goles: " + golesAcumulados + " | Tarjetas: " + tarjetasAcumuladas);
