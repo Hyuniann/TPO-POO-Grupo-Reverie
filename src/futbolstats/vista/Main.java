@@ -74,7 +74,7 @@ public class Main {
 
         while (opcion != 5) {
             System.out.println("\n--- MENU PRINCIPAL ---");
-            System.out.println("1. Simular/Jugar nuevo partido (Asistente Guiado)");
+            System.out.println("1. Comenzar Partido");
             System.out.println("2. Ver Tabla de Posiciones");
             System.out.println("3. Ver Estadisticas de Jugadores");
             System.out.println("4. Ver Reporte Completo del Torneo (Lectura TXT)");
@@ -89,18 +89,18 @@ public class Main {
                         System.out.println("\n--- NUEVO PARTIDO ---");
                         System.out.println("Clubes: 1.UADE FC | 2.Ingenieria FC | 3.Buongiorno Tutti | 4.Procyknator");
                         System.out.print("Numero Club Local: ");
-                        int numLocal = scanner.nextInt();
+                        int numeroLocal = scanner.nextInt();
                         System.out.print("Numero Club Visitante: ");
-                        int numVisita = scanner.nextInt();
+                        int numeroVisita = scanner.nextInt();
 
-                        if (numLocal >= 1 && numLocal <= 4 && numVisita >= 1 && numVisita <= 4 && numLocal != numVisita) {
-                            Club local = torneo.getClubesInscriptos().get(numLocal - 1);
-                            Club visita = torneo.getClubesInscriptos().get(numVisita - 1);
+                        if (numeroLocal >= 1 && numeroLocal <= 4 && numeroVisita >= 1 && numeroVisita <= 4 && numeroLocal != numeroVisita) {
+                            Club local = torneo.getClubesInscriptos().get(numeroLocal - 1);
+                            Club visita = torneo.getClubesInscriptos().get(numeroVisita - 1);
 
                             Partido partidoActivo = new Partido(LocalDate.now(), LocalTime.now(), local, visita);
-                            partidoActivo.asignarEstadio((numLocal % 2 == 1) ? e1 : e2);
+                            partidoActivo.asignarEstadio((numeroLocal % 2 == 1) ? e1 : e2);
                             controlador.programarPartido(torneo, partidoActivo);
-                            partidoActivo.asignarEstado(EstadoPartido.EN_JUEGO); // Arranca automatico
+                            partidoActivo.asignarEstado(EstadoPartido.EN_JUEGO);
 
                             System.out.println("El partido " + local.getNombre() + " vs " + visita.getNombre() + " ha comenzado.");
 
@@ -111,7 +111,7 @@ public class Main {
 
                                 if (accion == 3) {
                                     partidoActivo.finalizar();
-                                    controlador.guardarResumenEnArchivo(torneo, "torneo.txt"); // Guarda automatico
+                                    controlador.guardarResumenEnArchivo(torneo, "torneo.txt");
                                     System.out.println("Partido finalizado y guardado en disco automaticamente.");
                                     jugando = false;
                                 } else if (accion == 1 || accion == 2) {
@@ -123,12 +123,12 @@ public class Main {
                                         System.out.println((i + 1) + ". " + enCancha.get(i).getApellido());
                                     }
                                     System.out.print("Numero de jugador involucrado: ");
-                                    int numJug = scanner.nextInt();
-                                    if (numJug < 1 || numJug > enCancha.size()) {
+                                    int numeroJugador = scanner.nextInt();
+                                    if (numeroJugador < 1 || numeroJugador > enCancha.size()) {
                                         System.out.println("Jugador invalido.");
                                         continue;
                                     }
-                                    Jugador jugSelec = enCancha.get(numJug - 1);
+                                    Jugador jugadorSeleccion = enCancha.get(numeroJugador - 1);
 
                                     int minuto = -1;
                                     while (minuto < 0 || minuto > 120) {
@@ -145,8 +145,8 @@ public class Main {
                                     }
 
                                     Evento evento = (accion == 1)
-                                            ? new Gol(minuto, "Gol", jugSelec, TipoGol.A_FAVOR)
-                                            : new Tarjeta(minuto, "Falta", jugSelec, "Infraccion", ColorTarjeta.AMARILLA);
+                                            ? new Gol(minuto, "Gol", jugadorSeleccion, TipoGol.A_FAVOR)
+                                            : new Tarjeta(minuto, "Falta", jugadorSeleccion, "Infraccion", ColorTarjeta.AMARILLA);
 
                                     try {
                                         controlador.registrarEvento(partidoActivo, evento);
