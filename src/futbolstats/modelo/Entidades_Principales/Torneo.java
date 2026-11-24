@@ -24,6 +24,9 @@ public class Torneo {
     }
 
     public String getNombre() { return nombre; }
+    public LocalDate getFechaInicio() { return fechaInicio; }
+    public LocalDate getFechaFin() { return fechaFin; }
+    public EstadoTorneo getEstado() { return estado; }
     public List<Club> getClubesInscriptos() { return clubesInscriptos; }
     public List<Partido> getPartidos() { return partidos; }
 

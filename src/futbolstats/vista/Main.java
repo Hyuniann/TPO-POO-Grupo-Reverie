@@ -21,6 +21,7 @@ import futbolstats.modelo.JerarquiaPersona.Jugador;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -72,13 +73,16 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         int opcion = 0;
 
-        while (opcion != 5) {
+        while (opcion != 8) {
             System.out.println("\n--- MENU PRINCIPAL ---");
             System.out.println("1. Comenzar Partido");
             System.out.println("2. Ver Tabla de Posiciones");
             System.out.println("3. Ver Estadisticas de Jugadores");
             System.out.println("4. Ver Reporte Completo del Torneo (Lectura TXT)");
-            System.out.println("5. Salir");
+            System.out.println("5. Programar un encuentro");
+            System.out.println("6. Consultar calendario");
+            System.out.println("7. Iniciar un partido programado");
+            System.out.println("8. Salir");
             System.out.print("Elija una opcion: ");
 
             try {
@@ -99,7 +103,6 @@ public class Main {
 
                             Partido partidoActivo = new Partido(LocalDate.now(), LocalTime.now(), local, visita);
                             partidoActivo.asignarEstadio((numLocal % 2 == 1) ? e1 : e2);
-                            controlador.programarPartido(torneo, partidoActivo);
                             partidoActivo.asignarEstado(EstadoPartido.EN_JUEGO);
 
                             System.out.println("El partido " + local.getNombre() + " vs " + visita.getNombre() + " ha comenzado.");
@@ -198,7 +201,93 @@ public class Main {
                         System.out.println(contenido);
                         break;
 
+
                     case 5:
+                        System.out.println("\n--- PROGRAMAR ENCUENTRO ---");
+                        System.out.print("Numero Club Local: ");
+                        int localSeleccionado = scanner.nextInt();
+                        System.out.print("Numero Club Visitante: ");
+                        int visitanteSeleccionado = scanner.nextInt();
+
+                        if (localSeleccionado < 1 || localSeleccionado > torneo.getClubesInscriptos().size() ||
+                                visitanteSeleccionado < 1 || visitanteSeleccionado > torneo.getClubesInscriptos().size() ||
+                                localSeleccionado == visitanteSeleccionado) {
+                            System.out.println("Seleccion de clubes invalida.");
+                            break;
+                        }
+
+                        System.out.print("Fecha (AAAA-MM-DD): ");
+                        String fechaTexto = scanner.next();
+                        System.out.print("Hora (HH:MM): ");
+                        String horaTexto = scanner.next();
+                        System.out.println("Duracion predeterminada del encuentro: 120 minutos.");
+                        System.out.println("Estadio: 1." + e1.getNombre() + " | 2." + e2.getNombre());
+                        int estadioSeleccionado = scanner.nextInt();
+                        if (estadioSeleccionado < 1 || estadioSeleccionado > 2) {
+                            System.out.println("Seleccion de estadio invalida.");
+                            break;
+                        }
+
+                        try {
+                            LocalDate fechaPartido = LocalDate.parse(fechaTexto);
+                            LocalTime horaPartido = LocalTime.parse(horaTexto);
+                            Club localProgramado = torneo.getClubesInscriptos().get(localSeleccionado - 1);
+                            Club visitanteProgramado = torneo.getClubesInscriptos().get(visitanteSeleccionado - 1);
+                            Partido nuevoPartido = new Partido(fechaPartido, horaPartido,
+                                    localProgramado, visitanteProgramado);
+                            nuevoPartido.asignarEstadio(estadioSeleccionado == 1 ? e1 : e2);
+                            controlador.programarPartido(torneo, nuevoPartido);
+                            System.out.println("Partido programado correctamente.");
+                        } catch (DateTimeParseException e) {
+                            System.out.println("Formato invalido. Utilice AAAA-MM-DD para la fecha y HH:MM para la hora.");
+                        } catch (ReglaNegocioException e) {
+                            System.out.println(e.getMessage());
+                        }
+                        break;
+
+                    case 6:
+                        System.out.println("\n--- CALENDARIO DEL TORNEO ---");
+                        List<Partido> calendario = controlador.obtenerCalendario(torneo);
+                        if (calendario.isEmpty()) {
+                            System.out.println("Todavia no hay partidos programados.");
+                        } else {
+                            for (int i = 0; i < calendario.size(); i++) {
+                                Partido p = calendario.get(i);
+                                String estadio = p.getEstadio() == null ? "Sin estadio" : p.getEstadio().getNombre();
+                                System.out.println((i + 1) + ". " + p.getFecha() + " " + p.getHora() + " | " +
+                                        p.getClubLocal().getNombre() + " vs. " + p.getClubVisitante().getNombre() +
+                                        " | " + estadio + " | Duracion: " + p.getDuracionMinutos() +
+                                        " min | Estado: " + p.getEstado());
+                            }
+                        }
+                        break;
+
+                    case 9:
+                        List<Partido> partidosPendientes = new ArrayList<>();
+                        for (Partido p : controlador.obtenerCalendario(torneo)) {
+                            if (p.getEstado() == EstadoPartido.PROGRAMADO) {
+                                partidosPendientes.add(p);
+                            }
+                        }
+                        if (partidosPendientes.isEmpty()) {
+                            System.out.println("No hay partidos pendientes para iniciar.");
+                            break;
+                        }
+                        System.out.println("\n--- PARTIDOS PENDIENTES ---");
+                        for (int i = 0; i < partidosPendientes.size(); i++) {
+                            Partido p = partidosPendientes.get(i);
+                            System.out.println((i + 1) + ". " + p.getFecha() + " " + p.getHora() + " | " +
+                                    p.getClubLocal().getNombre() + " vs. " + p.getClubVisitante().getNombre());
+                        }
+                        System.out.print("Seleccione el partido que desea iniciar: ");
+                        int partidoElegido = scanner.nextInt();
+                        if (partidoElegido < 1 || partidoElegido > partidosPendientes.size()) {
+                            System.out.println("Seleccion de partido invalida.");
+                            break;
+                        }
+                        break;
+
+                    case 8:
                         System.out.println("Saliendo del sistema...");
                         break;
 

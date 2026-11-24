@@ -8,6 +8,7 @@ import futbolstats.modelo.Enumeraciones.EstadoPartido;
 import futbolstats.modelo.JerarquiaPersona.Jugador;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,17 @@ public class Partido {
     private TernaArbitral terna;
     private int golesLocal;
     private int golesVisitante;
+    private int duracionMinutos;
     private List<Evento> eventos;
 
     public Partido(LocalDate fecha, LocalTime hora, Club clubLocal, Club clubVisitante) {
+        this(fecha, hora, clubLocal, clubVisitante, 120);
+    }
+
+    public Partido(LocalDate fecha, LocalTime hora, Club clubLocal, Club clubVisitante, int duracionMinutos) {
+        if (duracionMinutos <= 0) {
+            throw new IllegalArgumentException("La duración del partido debe ser mayor a cero.");
+        }
         this.fecha = fecha;
         this.hora = hora;
         this.clubLocal = clubLocal;
@@ -32,6 +41,7 @@ public class Partido {
         this.estado = EstadoPartido.PROGRAMADO;
         this.golesLocal = 0;
         this.golesVisitante = 0;
+        this.duracionMinutos = duracionMinutos;
         this.eventos = new ArrayList<>();
     }
 
@@ -99,6 +109,25 @@ public class Partido {
         return hora;
     }
 
+    public int getDuracionMinutos() {
+        return duracionMinutos;
+    }
+
+    public LocalDateTime getFechaHoraInicio() {
+        if (fecha == null || hora == null) {
+            return null;
+        }
+        return LocalDateTime.of(fecha, hora);
+    }
+
+    public LocalDateTime getFechaHoraFin() {
+        LocalDateTime inicio = getFechaHoraInicio();
+        if (inicio == null) {
+            return null;
+        }
+        return inicio.plusMinutes(duracionMinutos);
+    }
+
     public int getGolesLocal() {
         return golesLocal;
     }
@@ -119,4 +148,5 @@ public class Partido {
         return estadio;
     }
 }
+
 

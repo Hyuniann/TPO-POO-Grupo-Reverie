@@ -7,22 +7,28 @@ import futbolstats.modelo.Enumeraciones.EstadoPartido;
 import futbolstats.modelo.Eventos.Evento;
 import futbolstats.modelo.Excepciones.ReglaNegocioException;
 import futbolstats.modelo.JerarquiaPersona.Jugador;
+import futbolstats.modelo.MejoraPartido.ProgramadorPartidos;
 
 import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class ControladorSistemaFutbol {
+    private ProgramadorPartidos programadorPartidos;
 
     public ControladorSistemaFutbol() {
+        this.programadorPartidos = new ProgramadorPartidos();
     }
 
-    public void programarPartido(Torneo torneo, Partido partido) {
-        if (torneo != null && partido != null) {
-            torneo.programarPartido(partido);
-        }
+    public void programarPartido(Torneo torneo, Partido partido) throws ReglaNegocioException {
+        programadorPartidos.programar(torneo, partido);
+    }
+
+    public List<Partido> obtenerCalendario(Torneo torneo) {
+        return programadorPartidos.obtenerCalendario(torneo);
     }
 
     public void registrarEvento(Partido partido, Evento evento) throws ReglaNegocioException {

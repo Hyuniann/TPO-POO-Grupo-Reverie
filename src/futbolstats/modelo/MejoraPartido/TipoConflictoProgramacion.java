@@ -1,0 +1,14 @@
+package futbolstats.modelo.MejoraPartido;
+
+public enum TipoConflictoProgramacion {
+    DATOS_INCOMPLETOS,
+    TORNEO_FINALIZADO,
+    ESTADO_PARTIDO_INVALIDO,
+    CLUBES_IGUALES,
+    CLUB_NO_INSCRIPTO,
+    FECHA_FUERA_DE_PERIODO,
+    ESTADIO_NO_ASIGNADO,
+    PARTIDO_DUPLICADO,
+    CLUB_OCUPADO,
+    ESTADIO_OCUPADO
+}
