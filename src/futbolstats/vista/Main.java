@@ -9,15 +9,15 @@ import futbolstats.modelo.Entidades_Principales.Torneo;
 import futbolstats.modelo.Entidades_Secundarias.GeneradorReportes;
 import futbolstats.modelo.Entidades_Secundarias.Notificacion;
 import futbolstats.modelo.Entidades_Secundarias.Suscriptor;
-import futbolstats.modelo.Enumeraciones.ColorTarjeta;
-import futbolstats.modelo.Enumeraciones.EstadoPartido;
-import futbolstats.modelo.Enumeraciones.TipoGol;
-import futbolstats.modelo.Eventos.Evento;
-import futbolstats.modelo.Eventos.Gol;
-import futbolstats.modelo.Eventos.Tarjeta;
+import futbolstats.modelo.Enumeraciones.*;
+import futbolstats.modelo.Eventos.*;
 import futbolstats.modelo.Excepciones.ReglaNegocioException;
 import futbolstats.modelo.Interfaces_con_Implementaciones.SMS;
 import futbolstats.modelo.JerarquiaPersona.Jugador;
+import futbolstats.modelo.Scouting.CalculadorValorMercado;
+import futbolstats.modelo.Scouting.ComparadorJugadores;
+import futbolstats.modelo.Scouting.EvaluadorJugador;
+import futbolstats.modelo.Scouting.InformeJugador;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -48,14 +48,14 @@ public class Main {
         suscriptor.agregarClub(c1);
         gestorNotif.agregarSuscriptor(suscriptor);
 
-        Jugador j1 = new Jugador("111", "Lionel", "Messi", LocalDate.of(1987, 6, 24), "DELANTERO", 10, 15.0);
-        Jugador j2 = new Jugador("222", "Rodrigo", "De Paul", LocalDate.of(1994, 5, 24), "MEDIO", 7, 20.0);
-        Jugador j3 = new Jugador("333", "Cristiano", "Ronaldo", LocalDate.of(1985, 2, 5), "DELANTERO", 7, 2.0);
-        Jugador j4 = new Jugador("444", "Luka", "Modric", LocalDate.of(1985, 9, 9), "MEDIO", 10, 10.0);
-        Jugador j5 = new Jugador("555", "Mateo", "Gonzalez", LocalDate.of(1998, 3, 15), "DEFENSOR", 4, 12.5);
-        Jugador j6 = new Jugador("667", "Agustin", "Fernandez", LocalDate.of(2001, 7, 22), "DELANTERO", 9, 25.0);
-        Jugador j7 = new Jugador("777", "Thiago", "Romero", LocalDate.of(2003, 11, 5), "ARQUERO", 68, 8.3);
-        Jugador j8 = new Jugador("888", "Santiago", "Mendez", LocalDate.of(1995, 1, 30), "ARQUERO", 1, 5.0);
+        Jugador j1 = new Jugador("111", "Lionel", "Messi", LocalDate.of(1987, 6, 24), "DELANTERO", 10, 300.0);
+        Jugador j2 = new Jugador("222", "Rodrigo", "De Paul", LocalDate.of(1994, 5, 24), "MEDIO", 7, 150.0);
+        Jugador j3 = new Jugador("333", "Cristiano", "Ronaldo", LocalDate.of(1985, 2, 5), "DELANTERO", 7, 250.0);
+        Jugador j4 = new Jugador("444", "Luka", "Modric", LocalDate.of(1985, 9, 9), "MEDIO", 10, 200.0);
+        Jugador j5 = new Jugador("555", "Mateo", "Gonzalez", LocalDate.of(1998, 3, 15), "DEFENSOR", 4, 120.5);
+        Jugador j6 = new Jugador("667", "Agustin", "Fernandez", LocalDate.of(2001, 7, 22), "DELANTERO", 9, 95.0);
+        Jugador j7 = new Jugador("777", "Thiago", "Romero", LocalDate.of(2003, 11, 5), "ARQUERO", 68, 83.3);
+        Jugador j8 = new Jugador("888", "Santiago", "Mendez", LocalDate.of(1995, 1, 30), "ARQUERO", 1, 57.0);
 
         try {
             c1.agregarJugador(j1); c1.agregarJugador(j2);
@@ -73,7 +73,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         int opcion = 0;
 
-        while (opcion != 8) {
+        while (opcion != 10) {
             System.out.println("\n--- MENU PRINCIPAL ---");
             System.out.println("1. Comenzar Partido");
             System.out.println("2. Ver Tabla de Posiciones");
@@ -81,8 +81,10 @@ public class Main {
             System.out.println("4. Ver Reporte Completo del Torneo (Lectura TXT)");
             System.out.println("5. Programar un encuentro");
             System.out.println("6. Consultar calendario");
-            System.out.println("7. Iniciar un partido programado");
-            System.out.println("8. Salir");
+            System.out.println("7. Generar informe de scouting");
+            System.out.println("8. Comparar dos jugadores");
+            System.out.println("9. Iniciar un partido programado");
+            System.out.println("10. Salir");
             System.out.print("Elija una opcion: ");
 
             try {
@@ -103,81 +105,13 @@ public class Main {
 
                             Partido partidoActivo = new Partido(LocalDate.now(), LocalTime.now(), local, visita);
                             partidoActivo.asignarEstadio((numLocal % 2 == 1) ? e1 : e2);
-                            partidoActivo.asignarEstado(EstadoPartido.EN_JUEGO);
-
-                            System.out.println("El partido " + local.getNombre() + " vs " + visita.getNombre() + " ha comenzado.");
-
-                            boolean jugando = true;
-                            while (jugando) {
-                                System.out.println("\n[PARTIDO EN JUEGO] Opciones: 1.Registrar Gol | 2.Registrar Tarjeta | 3.Terminar Partido");
-                                int accion = scanner.nextInt();
-
-                                if (accion == 3) {
-                                    partidoActivo.finalizar();
-                                    controlador.guardarResumenEnArchivo(torneo, "torneo.txt");
-                                    System.out.println("Partido finalizado y guardado en disco automaticamente.");
-                                    jugando = false;
-                                } else if (accion == 1 || accion == 2) {
-                                    List<Jugador> enCancha = new ArrayList<>();
-                                    enCancha.addAll(partidoActivo.getClubLocal().obtenerPlantel().obtenerJugadores());
-                                    enCancha.addAll(partidoActivo.getClubVisitante().obtenerPlantel().obtenerJugadores());
-
-                                    for (int i = 0; i < enCancha.size(); i++) {
-                                        System.out.println((i + 1) + ". " + enCancha.get(i).getApellido());
-                                    }
-                                    System.out.print("Numero de jugador involucrado: ");
-                                    int numJug = scanner.nextInt();
-                                    if (numJug < 1 || numJug > enCancha.size()) {
-                                        System.out.println("Jugador invalido.");
-                                        continue;
-                                    }
-                                    Jugador jugSelec = enCancha.get(numJug - 1);
-
-                                    // VALIDACIÓN DEL MINUTO (0 a 120)
-                                    int minuto = -1;
-                                    while (minuto < 0 || minuto > 120) {
-                                        System.out.print("Minuto del evento (0 a 120): ");
-                                        if (scanner.hasNextInt()) {
-                                            minuto = scanner.nextInt();
-                                            if (minuto < 0 || minuto > 120) {
-                                                System.out.println("Error: El minuto debe estar entre 0 y 120.");
-                                            }
-                                        } else {
-                                            System.out.println("Debe ingresar un numero entero.");
-                                            scanner.next();
-                                        }
-                                    }
-
-                                    // CREACIÓN DEL EVENTO
-                                    Evento evento = null;
-                                    if (accion == 1) {
-                                        evento = new Gol(minuto, "Gol", jugSelec, TipoGol.A_FAVOR);
-                                    } else if (accion == 2) {
-                                        int tipoTarjeta = 0;
-                                        while (tipoTarjeta != 1 && tipoTarjeta != 2) {
-                                            System.out.print("Color de Tarjeta (1.Amarilla | 2.Roja): ");
-                                            if (scanner.hasNextInt()) {
-                                                tipoTarjeta = scanner.nextInt();
-                                            } else {
-                                                System.out.println("Opcion invalida.");
-                                                scanner.next();
-                                            }
-                                        }
-                                        ColorTarjeta color = (tipoTarjeta == 1) ? ColorTarjeta.AMARILLA : ColorTarjeta.ROJA;
-                                        String motivo = (tipoTarjeta == 1) ? "Falta tactica" : "Juego brusco";
-                                        evento = new Tarjeta(minuto, "Infraccion", jugSelec, motivo, color);
-                                    }
-
-                                    try {
-                                        controlador.registrarEvento(partidoActivo, evento);
-                                        System.out.println("Evento registrado.");
-                                        Notificacion alerta = new Notificacion(evento.getMinuto(), evento.getDescripcion());
-                                        gestorNotif.despacharNotificacion(alerta, partidoActivo.getClubLocal(), partidoActivo.getClubVisitante());
-                                    } catch (ReglaNegocioException e) {
-                                        System.out.println("Error: " + e.getMessage());
-                                    }
-                                }
+                            try {
+                                controlador.programarPartido(torneo, partidoActivo);
+                            } catch (ReglaNegocioException e) {
+                                System.out.println(e.getMessage());
+                                break;
                             }
+                            gestionarPartido(partidoActivo, controlador, gestorNotif, torneo, scanner);
                         } else {
                             System.out.println("Seleccion de clubes invalida.");
                         }
@@ -201,9 +135,9 @@ public class Main {
                         System.out.println(contenido);
                         break;
 
-
                     case 5:
                         System.out.println("\n--- PROGRAMAR ENCUENTRO ---");
+                        mostrarClubes(torneo);
                         System.out.print("Numero Club Local: ");
                         int localSeleccionado = scanner.nextInt();
                         System.out.print("Numero Club Visitante: ");
@@ -262,6 +196,59 @@ public class Main {
                         }
                         break;
 
+                    case 7:
+                        List<Jugador> jugadoresScouting = obtenerJugadores(torneo);
+                        mostrarJugadores(jugadoresScouting);
+                        System.out.print("Seleccione el numero del jugador a evaluar: ");
+                        int numeroJugador = scanner.nextInt();
+                        if (numeroJugador < 1 || numeroJugador > jugadoresScouting.size()) {
+                            System.out.println("Jugador invalido.");
+                            break;
+                        }
+                        try {
+                            EvaluadorJugador evaluador = new EvaluadorJugador();
+                            InformeJugador informe = evaluador.evaluar(
+                                    jugadoresScouting.get(numeroJugador - 1), torneo);
+
+                            CalculadorValorMercado calculador = new CalculadorValorMercado();
+                            calculador.actualizarValorMercado(informe);
+
+                            System.out.println(informe.generarResumen());
+                        } catch (ReglaNegocioException e) {
+                            System.out.println(e.getMessage());
+                        }
+                        break;
+
+                    case 8:
+                        List<Jugador> jugadoresComparacion = obtenerJugadores(torneo);
+                        mostrarJugadores(jugadoresComparacion);
+                        System.out.print("Seleccione el primer jugador: ");
+                        int primero = scanner.nextInt();
+                        System.out.print("Seleccione el segundo jugador: ");
+                        int segundo = scanner.nextInt();
+                        if (primero < 1 || primero > jugadoresComparacion.size() ||
+                                segundo < 1 || segundo > jugadoresComparacion.size() || primero == segundo) {
+                            System.out.println("Seleccion invalida. Elija dos jugadores diferentes.");
+                            break;
+                        }
+                        try {
+                            EvaluadorJugador evaluador = new EvaluadorJugador();
+                            InformeJugador informeUno = evaluador.evaluar(
+                                    jugadoresComparacion.get(primero - 1), torneo);
+                            InformeJugador informeDos = evaluador.evaluar(
+                                    jugadoresComparacion.get(segundo - 1), torneo);
+
+                            CalculadorValorMercado calculador = new CalculadorValorMercado();
+                            calculador.actualizarValorMercado(informeUno);
+                            calculador.actualizarValorMercado(informeDos);
+
+                            ComparadorJugadores comparador = new ComparadorJugadores();
+                            System.out.println(comparador.comparar(informeUno, informeDos));
+                        } catch (ReglaNegocioException e) {
+                            System.out.println(e.getMessage());
+                        }
+                        break;
+
                     case 9:
                         List<Partido> partidosPendientes = new ArrayList<>();
                         for (Partido p : controlador.obtenerCalendario(torneo)) {
@@ -285,9 +272,11 @@ public class Main {
                             System.out.println("Seleccion de partido invalida.");
                             break;
                         }
+                        gestionarPartido(partidosPendientes.get(partidoElegido - 1),
+                                controlador, gestorNotif, torneo, scanner);
                         break;
 
-                    case 8:
+                    case 10:
                         System.out.println("Saliendo del sistema...");
                         break;
 
@@ -300,5 +289,126 @@ public class Main {
             }
         }
         scanner.close();
+    }
+
+    private static void gestionarPartido(Partido partidoActivo,
+                                         ControladorSistemaFutbol controlador,
+                                         GestorNotificaciones gestorNotif,
+                                         Torneo torneo,
+                                         Scanner scanner) {
+        partidoActivo.asignarEstado(EstadoPartido.EN_JUEGO);
+        System.out.println("El partido " + partidoActivo.getClubLocal().getNombre() + " vs " +
+                partidoActivo.getClubVisitante().getNombre() + " ha comenzado.");
+
+        boolean jugando = true;
+        while (jugando) {
+            System.out.println("\n[PARTIDO EN JUEGO] Opciones: 1.Gol | 2.Tarjeta | 3.Remate | 4.Falta | 5.Terminar Partido");
+            int accion = scanner.nextInt();
+
+            if (accion == 5) {
+                partidoActivo.finalizar();
+                controlador.guardarResumenEnArchivo(torneo, "torneo.txt");
+                System.out.println("Partido finalizado.");
+                jugando = false;
+            } else if (accion >= 1 && accion <= 4) {
+                List<Jugador> enCancha = new ArrayList<>();
+                enCancha.addAll(partidoActivo.getClubLocal().obtenerPlantel().obtenerJugadores());
+                enCancha.addAll(partidoActivo.getClubVisitante().obtenerPlantel().obtenerJugadores());
+
+                for (int i = 0; i < enCancha.size(); i++) {
+                    System.out.println((i + 1) + ". " + enCancha.get(i).getApellido());
+                }
+                System.out.print("Numero de jugador involucrado: ");
+                int numJug = scanner.nextInt();
+                if (numJug < 1 || numJug > enCancha.size()) {
+                    System.out.println("Jugador invalido.");
+                    continue;
+                }
+                Jugador jugadorSeleccionado = enCancha.get(numJug - 1);
+
+                int minuto = -1;
+                while (minuto < 0 || minuto > 120) {
+                    System.out.print("Minuto del evento (0 a 120): ");
+                    if (scanner.hasNextInt()) {
+                        minuto = scanner.nextInt();
+                        if (minuto < 0 || minuto > 120) {
+                            System.out.println("Error: El minuto debe estar entre 0 y 120.");
+                        }
+                    } else {
+                        System.out.println("Debe ingresar un numero entero.");
+                        scanner.next();
+                    }
+                }
+
+                Evento evento = null;
+                if (accion == 1) {
+                    evento = new Gol(minuto, "Gol", jugadorSeleccionado, TipoGol.A_FAVOR);
+                } else if (accion == 2) {
+                    int tipoTarjeta = 0;
+                    while (tipoTarjeta != 1 && tipoTarjeta != 2) {
+                        System.out.print("Color de Tarjeta (1.Amarilla | 2.Roja): ");
+                        if (scanner.hasNextInt()) {
+                            tipoTarjeta = scanner.nextInt();
+                        } else {
+                            System.out.println("Opcion invalida.");
+                            scanner.next();
+                        }
+                    }
+                    ColorTarjeta color = (tipoTarjeta == 1) ? ColorTarjeta.AMARILLA : ColorTarjeta.ROJA;
+                    String motivo = (tipoTarjeta == 1) ? "Falta tactica" : "Juego brusco";
+                    evento = new Tarjeta(minuto, "Infraccion", jugadorSeleccionado, motivo, color);
+                } else if (accion == 3) {
+                    System.out.println("Zona del remate: 1.Area chica | 2.Area grande | 3.Fuera del area | 4.Penal");
+                    int zona = scanner.nextInt();
+                    if (zona < 1 || zona > 4) {
+                        System.out.println("Zona invalida. No se registro el evento.");
+                        continue;
+                    }
+                    evento = new Remate(minuto, "Remate", jugadorSeleccionado, ZonaRemate.values()[zona - 1]);
+                } else if (accion == 4) {
+                    System.out.println("Tipo de falta: 1.Leve | 2.Grave | 3.Tactica");
+                    int tipo = scanner.nextInt();
+                    if (tipo < 1 || tipo > 3) {
+                        System.out.println("Tipo de falta invalido. No se registro el evento.");
+                        continue;
+                    }
+                    evento = new Falta(minuto, "Falta", jugadorSeleccionado, TipoFalta.values()[tipo - 1]);
+                }
+
+                try {
+                    controlador.registrarEvento(partidoActivo, evento);
+                    System.out.println("Evento registrado.");
+                    Notificacion alerta = new Notificacion(evento.getMinuto(), evento.getDescripcion());
+                    gestorNotif.despacharNotificacion(alerta,
+                            partidoActivo.getClubLocal(), partidoActivo.getClubVisitante());
+                } catch (ReglaNegocioException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Accion inexistente.");
+            }
+        }
+    }
+
+    private static void mostrarClubes(Torneo torneo) {
+        for (int i = 0; i < torneo.getClubesInscriptos().size(); i++) {
+            System.out.println((i + 1) + ". " + torneo.getClubesInscriptos().get(i).getNombre());
+        }
+    }
+
+    private static List<Jugador> obtenerJugadores(Torneo torneo) {
+        List<Jugador> jugadores = new ArrayList<>();
+        for (Club club : torneo.getClubesInscriptos()) {
+            jugadores.addAll(club.obtenerPlantel().obtenerJugadores());
+        }
+        return jugadores;
+    }
+
+    private static void mostrarJugadores(List<Jugador> jugadores) {
+        System.out.println("\n--- JUGADORES DISPONIBLES ---");
+        for (int i = 0; i < jugadores.size(); i++) {
+            Jugador jugador = jugadores.get(i);
+            System.out.println((i + 1) + ". " + jugador.getNombre() + " " + jugador.getApellido());
+        }
     }
 }

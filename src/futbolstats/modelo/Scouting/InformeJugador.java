@@ -67,8 +67,6 @@ public class InformeJugador {
         resumen.append("Valor de mercado actual: ").append(formato(valorMercadoCalculado)).append(" u.m.\n");
         resumen.append("Variacion respecto del valor inicial: ")
                 .append(formato(variacionPorcentual)).append("%\n");
-        resumen.append("Nota: solo considera eventos cargados en partidos finalizados. ")
-                .append("Los partidos con eventos no equivalen necesariamente a presencias oficiales.\n");
         resumen.append("=========================================");
         return resumen.toString();
     }
