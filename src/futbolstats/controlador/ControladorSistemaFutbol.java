@@ -21,7 +21,7 @@ public class ControladorSistemaFutbol {
 
     public void programarPartido(Torneo torneo, Partido partido) {
         if (torneo != null && partido != null) {
-            torneo.programarPartido(partido);
+            torneo.programarPartido(partido); //se delega la accion a Torneo
         }
     }
 
