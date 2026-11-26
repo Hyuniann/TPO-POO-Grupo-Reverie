@@ -23,4 +23,25 @@ public class Plantel {
     public List<Jugador> obtenerJugadores() {
         return this.jugadores;
     }
+
+    public void quitarJugador(Jugador jugador) {
+        jugadores.remove(jugador);
+    }
+
+    public boolean contieneJugador(Jugador jugador) {
+        return jugadores.contains(jugador);
+    }
+
+    public boolean existeDorsal(int dorsal) {
+        for (Jugador j : jugadores) {
+            if (j.getNumeroCamiseta() == dorsal) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int getCantidadJugadores() {
+        return jugadores.size();
+    }
 }

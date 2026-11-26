@@ -15,7 +15,7 @@ public class TraspasoDefinitivo extends Transferencia {
     private Club clubDestino;
     private int nuevoDorsal;
 
-    public TraspasoDefinitivo(Jugador jugador, Club clubOrigen, Club clubDestino, int nuevoDorsal, LocalDate fecha, double monto) {
+    public TraspasoDefinitivo(Jugador jugador, Club clubOrigen, Club clubDestino, double monto, int nuevoDorsal, LocalDate fecha) {
         super(jugador, fecha, monto);
         this.clubOrigen = clubOrigen;
         this.clubDestino = clubDestino;

@@ -16,12 +16,23 @@ public class Club {
     private Plantel plantel;
     private List<Entrenador> cuerpoTecnico;
 
+    private double presupuesto;
+    private double totalGastado;
+    private double totalRecaudado;
+
     public Club(String nombre, LocalDate fechaFundacion, String sedeSocial) {
+        this(nombre, fechaFundacion, sedeSocial, 50.0);
+    }
+
+    public Club(String nombre, LocalDate fechaFundacion, String sedeSocial, double presupuesto) {
         this.nombre = nombre;
         this.fechaFundacion = fechaFundacion;
         this.sedeSocial = sedeSocial;
         this.plantel = new Plantel();
         this.cuerpoTecnico = new ArrayList<>();
+        this.presupuesto = presupuesto;
+        this.totalGastado = 0.0;
+        this.totalRecaudado = 0.0;
     }
 
     public  String getNombre() {
@@ -42,5 +53,27 @@ public class Club {
 
     public List<Entrenador> obtenerCuerpoTecnico() {
         return this.cuerpoTecnico;
+    }
+
+    public void descontarPresupuesto(double monto) {
+        this.presupuesto -= monto;
+        this.totalGastado += monto;
+    }
+
+    public void acreditarPresupuesto(double monto) {
+        this.presupuesto += monto;
+        this.totalRecaudado += monto;
+    }
+
+    public double getPresupuesto() {
+        return presupuesto;
+    }
+
+    public double getTotalGastado() {
+        return totalGastado;
+    }
+
+    public double getTotalRecaudado() {
+        return totalRecaudado;
     }
 }

@@ -1,4 +1,0 @@
-[2026-11-25] TRASPASO DEFINITIVO | Jugador: Rodrigo De Paul | Origen: UADE FC -> Destino: Ingenieria FC | Dorsal: #67 | Monto: $20.0M
-[2026-11-25] RESCISION DE CONTRATO | Jugador: Rodrigo De Paul | Club: Ingenieria FC | Estado: Jugador Libre (viene jugando mal)
-[2026-11-25] RESCISION DE CONTRATO | Jugador: Luka Modric | Club: Ingenieria FC | Estado: Jugador Libre (god)
-[2026-11-25] FICHAJE LIBRE | Jugador: Luka Modric | Destino: UADE FC | Dorsal: #54

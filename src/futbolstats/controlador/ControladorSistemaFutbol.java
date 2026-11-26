@@ -3,16 +3,14 @@ package futbolstats.controlador;
 import futbolstats.modelo.Entidades_Principales.Club;
 import futbolstats.modelo.Entidades_Principales.Partido;
 import futbolstats.modelo.Entidades_Principales.Torneo;
+import futbolstats.modelo.Entidades_Secundarias.Notificacion;
 import futbolstats.modelo.Enumeraciones.EstadoPartido;
 import futbolstats.modelo.Eventos.Evento;
 import futbolstats.modelo.Excepciones.ReglaNegocioException;
 import futbolstats.modelo.JerarquiaPersona.Jugador;
+import futbolstats.modelo.JerarquiaTransferencia.Transferencia;
 
-import java.io.FileWriter;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 public class ControladorSistemaFutbol {
 
@@ -29,6 +27,40 @@ public class ControladorSistemaFutbol {
         if (partido != null && evento != null) {
             partido.registrarEvento(evento);
         }
+    }
+
+    public void procesarTransferencia(Torneo torneo, Transferencia transferencia,
+                                      GestorNotificaciones gestorNotif, String rutaArchivo) throws ReglaNegocioException {
+        if (torneo != null && transferencia != null) {
+            torneo.registrarTransferencia(transferencia);
+
+            if (gestorNotif != null) {
+                Notificacion alerta = new Notificacion(0, transferencia.generarDetalle());
+                gestorNotif.despacharNotificacion(alerta, transferencia.getClubOrigen(), transferencia.getClubDestino());
+            }
+
+            guardarTransferenciaEnArchivo(transferencia, rutaArchivo);
+        }
+    }
+
+    private void guardarTransferenciaEnArchivo(Transferencia transferencia, String rutaArchivo) {
+        BufferedWriter bw = null;
+        try {
+            bw = new BufferedWriter(new FileWriter(rutaArchivo, true));
+            bw.write(transferencia.generarDetalle());
+            bw.newLine();
+        } catch (IOException e) {
+            throw new RuntimeException("Error al guardar transferencia en archivo: " + e.getMessage());
+        } finally {
+            try {
+                if (bw != null) bw.close();
+            } catch (IOException ex) {
+            }
+        }
+    }
+
+    public String leerHistorialTransferencias(String ruta) {
+        return leerResumenPartido(ruta);
     }
 
     public void guardarResumenEnArchivo(Torneo torneo, String rutaArchivo) {

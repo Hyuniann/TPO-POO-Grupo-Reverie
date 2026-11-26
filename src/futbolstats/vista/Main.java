@@ -11,6 +11,7 @@ import futbolstats.modelo.Entidades_Secundarias.Notificacion;
 import futbolstats.modelo.Entidades_Secundarias.Suscriptor;
 import futbolstats.modelo.Enumeraciones.ColorTarjeta;
 import futbolstats.modelo.Enumeraciones.EstadoPartido;
+import futbolstats.modelo.Enumeraciones.EstadoTorneo;
 import futbolstats.modelo.Enumeraciones.TipoGol;
 import futbolstats.modelo.Eventos.Evento;
 import futbolstats.modelo.Eventos.Gol;
@@ -18,6 +19,10 @@ import futbolstats.modelo.Eventos.Tarjeta;
 import futbolstats.modelo.Excepciones.ReglaNegocioException;
 import futbolstats.modelo.Interfaces_con_Implementaciones.SMS;
 import futbolstats.modelo.JerarquiaPersona.Jugador;
+import futbolstats.modelo.JerarquiaTransferencia.FichajeLibre;
+import futbolstats.modelo.JerarquiaTransferencia.RescisionContrato;
+import futbolstats.modelo.JerarquiaTransferencia.Transferencia;
+import futbolstats.modelo.JerarquiaTransferencia.TraspasoDefinitivo;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -34,10 +39,12 @@ public class Main {
         GeneradorReportes reportes = new GeneradorReportes();
 
         Torneo torneo = new Torneo("Liga Universitaria 2026", LocalDate.now(), LocalDate.now().plusMonths(4));
-        Club c1 = new Club("UADE FC", LocalDate.of(2000, 1, 1), "Lima 750");
-        Club c2 = new Club("Ingenieria FC", LocalDate.of(2005, 5, 10), "Independencia 120");
-        Club c3 = new Club("Buongiorno Tutti", LocalDate.of(1998, 7, 3), "Italia 67");
-        Club c4 = new Club("Procyknator", LocalDate.of(2020, 4, 23), "RealTime");
+
+        //el presupuesto es en millones
+        Club c1 = new Club("UADE FC", LocalDate.of(2000, 1, 1), "Lima 750", 50.0);
+        Club c2 = new Club("Ingenieria FC", LocalDate.of(2005, 5, 10), "Independencia 120", 35.0);
+        Club c3 = new Club("Buongiorno Tutti", LocalDate.of(1998, 7, 3), "Italia 67", 25.0);
+        Club c4 = new Club("Procyknator", LocalDate.of(2020, 4, 23), "RealTime", 10.0);
 
         Estadio e1 = new Estadio("TTT United", 77700, "Tung Valley", "777", "Sahur City", "BSAS", "Soleado");
         Estadio e2 = new Estadio("Eric Song", 45000, "Micasa", "378", "Halliday", "BSAS", "Nublado");
@@ -64,7 +71,8 @@ public class Main {
 
             torneo.agregarClub(c1); torneo.agregarClub(c2);
             torneo.agregarClub(c3); torneo.agregarClub(c4);
-            torneo.iniciarTorneo();
+            //el torneo arranca PLANIFICADO para tener la ventana de pases abierta
+            //pasa a EN_CURSO al jugar el primer partido
         } catch (ReglaNegocioException e) {
             System.out.println("Error de carga inicial: " + e.getMessage());
         }
@@ -72,13 +80,14 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         int opcion = 0;
 
-        while (opcion != 5) {
-            System.out.println("\n--- MENU PRINCIPAL ---");
+        while (opcion != 6) {
+            System.out.println("\n--- MENU PRINCIPAL (" + torneo.getEstado() + ") ---");
             System.out.println("1. Comenzar Partido");
             System.out.println("2. Ver Tabla de Posiciones");
             System.out.println("3. Ver Estadisticas de Jugadores");
             System.out.println("4. Ver Reporte Completo del Torneo (Lectura TXT)");
-            System.out.println("5. Salir");
+            System.out.println("5. Mercado de Pases y Jugadores Libres");
+            System.out.println("6. Salir");
             System.out.print("Elija una opcion: ");
 
             try {
@@ -86,16 +95,29 @@ public class Main {
 
                 switch (opcion) {
                     case 1:
+                        if (torneo.getEstado() == EstadoTorneo.PLANIFICADO) {
+                            try {
+                                torneo.iniciarTorneo();
+                                System.out.println("El torneo ha comenzado (ventana de pases cerrada).");
+                            } catch (ReglaNegocioException e) {
+                                System.out.println("Error: " + e.getMessage());
+                                break;
+                            }
+                        }
+
                         System.out.println("\n--- NUEVO PARTIDO ---");
-                        System.out.println("Clubes: 1.UADE FC | 2.Ingenieria FC | 3.Buongiorno Tutti | 4.Procyknator");
+                        List<Club> clubes = torneo.getClubesInscriptos();
+                        for (int i = 0; i < clubes.size(); i++) {
+                            System.out.println((i + 1) + ". " + clubes.get(i).getNombre());
+                        }
                         System.out.print("Numero Club Local: ");
                         int numLocal = scanner.nextInt();
                         System.out.print("Numero Club Visitante: ");
                         int numVisita = scanner.nextInt();
 
-                        if (numLocal >= 1 && numLocal <= 4 && numVisita >= 1 && numVisita <= 4 && numLocal != numVisita) {
-                            Club local = torneo.getClubesInscriptos().get(numLocal - 1);
-                            Club visita = torneo.getClubesInscriptos().get(numVisita - 1);
+                        if (numLocal >= 1 && numLocal <= clubes.size() && numVisita >= 1 && numVisita <= clubes.size() && numLocal != numVisita) {
+                            Club local = clubes.get(numLocal - 1);
+                            Club visita = clubes.get(numVisita - 1);
 
                             Partido partidoActivo = new Partido(LocalDate.now(), LocalTime.now(), local, visita);
                             partidoActivo.asignarEstadio((numLocal % 2 == 1) ? e1 : e2);
@@ -130,7 +152,6 @@ public class Main {
                                     }
                                     Jugador jugSelec = enCancha.get(numJug - 1);
 
-                                    // VALIDACIÓN DEL MINUTO (0 a 120)
                                     int minuto = -1;
                                     while (minuto < 0 || minuto > 120) {
                                         System.out.print("Minuto del evento (0 a 120): ");
@@ -145,7 +166,6 @@ public class Main {
                                         }
                                     }
 
-                                    // CREACIÓN DEL EVENTO
                                     Evento evento = null;
                                     if (accion == 1) {
                                         evento = new Gol(minuto, "Gol", jugSelec, TipoGol.A_FAVOR);
@@ -199,6 +219,10 @@ public class Main {
                         break;
 
                     case 5:
+                        gestionarMercadoPases(scanner, torneo, controlador, reportes, gestorNotif);
+                        break;
+
+                    case 6:
                         System.out.println("Saliendo del sistema...");
                         break;
 
@@ -211,5 +235,189 @@ public class Main {
             }
         }
         scanner.close();
+    }
+
+    //submenu para el mercado de pases
+    private static void gestionarMercadoPases(Scanner scanner, Torneo torneo,
+                                              ControladorSistemaFutbol controlador,
+                                              GeneradorReportes reportes,
+                                              GestorNotificaciones gestorNotif) {
+        int subOpcion = -1;
+        while (subOpcion != 0) {
+            System.out.println("\n--- MERCADO DE PASES Y JUGADORES LIBRES ---");
+            System.out.println("1. Registrar Traspaso Definitivo (Club -> Club)");
+            System.out.println("2. Registrar Rescision de Contrato (Club -> Libre)");
+            System.out.println("3. Fichar Jugador Libre (Libre -> Club)");
+            System.out.println("4. Reporte: Trayectoria de un Jugador");
+            System.out.println("5. Reporte: Balance Economico de Clubes");
+            System.out.println("6. Ver Libro de Pases Guardado (transferencias.txt)");
+            System.out.println("0. Volver al Menu Principal");
+            System.out.print("Elija una opcion: ");
+
+            try {
+                subOpcion = scanner.nextInt();
+                List<Club> clubes = torneo.getClubesInscriptos();
+
+                switch (subOpcion) {
+                    case 1: {
+                        System.out.println("\nSeleccione Club Vendedor (Origen):");
+                        for (int i = 0; i < clubes.size(); i++) {
+                            System.out.println((i + 1) + ". " + clubes.get(i).getNombre() + " (Presupuesto: $" + clubes.get(i).getPresupuesto() + "M)");
+                        }
+                        int idxOrigen = scanner.nextInt() - 1;
+                        if (idxOrigen < 0 || idxOrigen >= clubes.size()) {
+                            System.out.println("Club invalido.");
+                            break;
+                        }
+                        Club origen = clubes.get(idxOrigen);
+
+                        List<Jugador> plantelOrigen = origen.obtenerPlantel().obtenerJugadores();
+                        System.out.println("Seleccione Jugador a transferir:");
+                        for (int i = 0; i < plantelOrigen.size(); i++) {
+                            Jugador j = plantelOrigen.get(i);
+                            System.out.println((i + 1) + ". " + j.getApellido() + " (#" + j.getNumeroCamiseta() + " | Valor mercado: $" + j.getValorMercado() + "M)");
+                        }
+                        int idxJug = scanner.nextInt() - 1;
+                        if (idxJug < 0 || idxJug >= plantelOrigen.size()) {
+                            System.out.println("Jugador invalido.");
+                            break;
+                        }
+                        Jugador jugador = plantelOrigen.get(idxJug);
+
+                        System.out.println("Seleccione Club Comprador (Destino):");
+                        for (int i = 0; i < clubes.size(); i++) {
+                            System.out.println((i + 1) + ". " + clubes.get(i).getNombre() + " (Presupuesto: $" + clubes.get(i).getPresupuesto() + "M)");
+                        }
+                        int idxDestino = scanner.nextInt() - 1;
+                        if (idxDestino < 0 || idxDestino >= clubes.size()) {
+                            System.out.println("Club invalido.");
+                            break;
+                        }
+                        Club destino = clubes.get(idxDestino);
+
+                        System.out.print("Monto de la transferencia (en millones): ");
+                        double monto = scanner.nextDouble();
+                        System.out.print("Nuevo numero de camiseta en " + destino.getNombre() + ": ");
+                        int dorsal = scanner.nextInt();
+
+                        Transferencia traspaso = new TraspasoDefinitivo(jugador, origen, destino, monto, dorsal, LocalDate.now());
+                        controlador.procesarTransferencia(torneo, traspaso, gestorNotif, "transferencias.txt");
+                        System.out.println("EXITO: " + traspaso.generarDetalle());
+                        break;
+                    }
+
+                    case 2: {
+                        System.out.println("\nSeleccione Club que rescinde contrato:");
+                        for (int i = 0; i < clubes.size(); i++) {
+                            System.out.println((i + 1) + ". " + clubes.get(i).getNombre());
+                        }
+                        int idxClub = scanner.nextInt() - 1;
+                        if (idxClub < 0 || idxClub >= clubes.size()) {
+                            System.out.println("Club invalido.");
+                            break;
+                        }
+                        Club origen = clubes.get(idxClub);
+
+                        List<Jugador> plantel = origen.obtenerPlantel().obtenerJugadores();
+                        System.out.println("Seleccione Jugador a liberar:");
+                        for (int i = 0; i < plantel.size(); i++) {
+                            System.out.println((i + 1) + ". " + plantel.get(i).getApellido());
+                        }
+                        int idxJug = scanner.nextInt() - 1;
+                        if (idxJug < 0 || idxJug >= plantel.size()) {
+                            System.out.println("Jugador invalido.");
+                            break;
+                        }
+                        Jugador jugador = plantel.get(idxJug);
+
+                        scanner.nextLine();
+                        System.out.print("Motivo de la rescision: ");
+                        String motivo = scanner.nextLine();
+
+                        Transferencia rescision = new RescisionContrato(jugador, origen, motivo, LocalDate.now());
+                        controlador.procesarTransferencia(torneo, rescision, gestorNotif, "transferencias.txt");
+                        System.out.println("EXITO: " + rescision.generarDetalle());
+                        break;
+                    }
+
+                    case 3: {
+                        List<Jugador> libres = torneo.getJugadoresLibres();
+                        if (libres.isEmpty()) {
+                            System.out.println("No hay jugadores libres disponibles en este momento.");
+                            break;
+                        }
+                        System.out.println("\nJugadores Libres disponibles:");
+                        for (int i = 0; i < libres.size(); i++) {
+                            System.out.println((i + 1) + ". " + libres.get(i).getDatosPersonales());
+                        }
+                        int idxLibre = scanner.nextInt() - 1;
+                        if (idxLibre < 0 || idxLibre >= libres.size()) {
+                            System.out.println("Seleccion invalida.");
+                            break;
+                        }
+                        Jugador libre = libres.get(idxLibre);
+
+                        System.out.println("Seleccione Club que lo ficha:");
+                        for (int i = 0; i < clubes.size(); i++) {
+                            System.out.println((i + 1) + ". " + clubes.get(i).getNombre());
+                        }
+                        int idxDestino = scanner.nextInt() - 1;
+                        if (idxDestino < 0 || idxDestino >= clubes.size()) {
+                            System.out.println("Club invalido.");
+                            break;
+                        }
+                        Club destino = clubes.get(idxDestino);
+
+                        System.out.print("Numero de camiseta asignado: ");
+                        int dorsal = scanner.nextInt();
+
+                        Transferencia fichaje = new FichajeLibre(libre, destino, dorsal, LocalDate.now());
+                        controlador.procesarTransferencia(torneo, fichaje, gestorNotif, "transferencias.txt");
+                        System.out.println("EXITO: " + fichaje.generarDetalle());
+                        break;
+                    }
+
+                    case 4: {
+                        List<Jugador> todos = new ArrayList<>();
+                        for (Club c : clubes) {
+                            todos.addAll(c.obtenerPlantel().obtenerJugadores());
+                        }
+                        todos.addAll(torneo.getJugadoresLibres());
+
+                        System.out.println("\nSeleccione Jugador para ver su trayectoria:");
+                        for (int i = 0; i < todos.size(); i++) {
+                            System.out.println((i + 1) + ". " + todos.get(i).getDatosPersonales());
+                        }
+                        int idx = scanner.nextInt() - 1;
+                        if (idx >= 0 && idx < todos.size()) {
+                            reportes.generarReporteTrayectoria(todos.get(idx));
+                        } else {
+                            System.out.println("Jugador invalido.");
+                        }
+                        break;
+                    }
+
+                    case 5:
+                        reportes.generarBalanceEconomico(torneo);
+                        break;
+
+                    case 6:
+                        System.out.println("\n--- LIBRO DE PASES (ARCHIVO) ---");
+                        System.out.println(controlador.leerHistorialTransferencias("transferencias.txt"));
+                        break;
+
+                    case 0:
+                        break;
+
+                    default:
+                        System.out.println("Opcion invalida.");
+                }
+            } catch (ReglaNegocioException e) {
+                System.out.println("REGLA DE NEGOCIO VIOLADA: " + e.getMessage());
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Debe ingresar un numero valido.");
+                scanner.nextLine();
+            }
+        }
     }
 }

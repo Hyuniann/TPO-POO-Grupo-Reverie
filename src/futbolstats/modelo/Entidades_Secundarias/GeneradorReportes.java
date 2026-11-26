@@ -5,6 +5,7 @@ import futbolstats.modelo.JerarquiaPersona.Jugador;
 import futbolstats.modelo.Interfaces_con_Implementaciones.EstrategiaProyeccion;
 import futbolstats.modelo.Entidades_Principales.Partido;
 import futbolstats.modelo.Enumeraciones.EstadoPartido;
+import futbolstats.modelo.JerarquiaTransferencia.Transferencia;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -98,6 +99,41 @@ public class GeneradorReportes {
             System.out.println("Club: " + menosVencido.getNombre() + " (Promedio: " + mejorPromedio + " goles recibidos por partido)");
         } else {
             System.out.println("No hay datos suficientes de partidos finalizados.");
+        }
+    }
+
+    public void generarReporteTrayectoria(Jugador jugador) {
+        System.out.println("\n--- TRAYECTORIA DEL JUGADOR: " + jugador.getDatosPersonales() + " ---");
+        System.out.println("Valor de mercado: $" + jugador.getValorMercado() + "M | Camiseta actual: #" + jugador.getNumeroCamiseta());
+        System.out.println("Estadisticas acumuladas (conservadas): " + jugador.getGolesAcumulados()
+                + " goles | " + jugador.getTarjetasAcumuladas() + " tarjetas.");
+
+        List<Transferencia> historial = jugador.getHistorialTransferencias();
+        if (historial.isEmpty()) {
+            System.out.println("Sin movimientos registrados en el mercado de pases.");
+        } else {
+            for (Transferencia t : historial) {
+                System.out.println("  -> " + t.generarDetalle());
+            }
+        }
+    }
+
+    public void generarBalanceEconomico(Torneo torneo) {
+        System.out.println("\n--- BALANCE ECONOMICO DEL MERCADO DE PASES ---");
+        List<Club> clubesOrdenados = new ArrayList<>(torneo.getClubesInscriptos());
+
+        clubesOrdenados.sort(new Comparator<Club>() {
+            @Override
+            public int compare(Club c1, Club c2) {
+                return Double.compare(c2.getPresupuesto(), c1.getPresupuesto());
+            }
+        });
+
+        for (Club c : clubesOrdenados) {
+            System.out.println(c.getNombre()
+                    + " | Presupuesto disponible: $" + c.getPresupuesto() + "M"
+                    + " | Gastado: $" + c.getTotalGastado() + "M"
+                    + " | Recaudado: $" + c.getTotalRecaudado() + "M");
         }
     }
 }
